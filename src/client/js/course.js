@@ -31,6 +31,11 @@ const addUserMarker = () => {
     markers.push(marker);
 };
 
+const panTo = (latitude, longitude) => {
+    map.panTo(new kakao.maps.LatLng(latitude, longitude));
+};
+
+// course marker making
 const addCourseMarker = () => {
     let markerImage = "/file/map_not_done.png";
     let markerSize = new kakao.maps.Size(24, 35);
@@ -62,6 +67,7 @@ const configurationLocationWatch = () => {
             // drawing user marker
             addUserMarker();
             addCourseMarker();
+            panTo(userLatitude, userLongitude);
         });
     }
 };
