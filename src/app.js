@@ -1,33 +1,22 @@
 import express from "express";
+import viewRouter from "./router/viewRouter";
+import apiRouter from "./router/apiRouter";
 
 const app = express();
+const PORT = 8080;
 
 app.set("view engine", "ejs");
 app.set("views", process.cwd() + "/src/client/html");
 
-// project 위치 확인
 // console.log(process.cwd());
 
-app.use((req, res, next) => {
-    console.log("pass this message");
-    next();
-});
+app.use("/css", express.static("src/client/css"));
+app.use("/file", express.static("src/client/file"));
+app.use("/js", express.static("src/client/js"));
 
-app.get("/", (req, res) => {
-    const homeData = {
-        data: [{ name: "철수" }, { name: "영희" }, { name: "민수" }],
-    };
-    res.render("home", homeData);
-});
+app.use("/api", apiRouter);
+app.use("/", viewRouter);
 
-app.get("/abc", (req, res) => {
-    res.send("abc page");
-});
-
-app.get("/introduce", (req, res) => {
-    res.render("introduce");
-});
-
-app.listen(8080, () => {
-    console.info("server is runnning at 8080 http://localhost:8080");
+app.listen(PORT, () => {
+    console.info(`server is runnning at ${PORT} http://localhost:${PORT}`);
 });
