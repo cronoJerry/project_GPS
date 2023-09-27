@@ -6,11 +6,14 @@ let markers = [];
 let isMapDrawn = false;
 let userLatitude;
 let userLongitude;
+// TODO 추후 사라질 수 있음
+let courseListInfo = [];
 
+// function declaration
 const drawMap = (latitude, longitude) => {
     const options = {
         center: new kakao.maps.LatLng(latitude, longitude),
-        level: 2,
+        level: 3,
     };
     map = new kakao.maps.Map(locationMap, options);
     map.setZoomable(false);
@@ -36,21 +39,32 @@ const panTo = (latitude, longitude) => {
 };
 
 // course marker making
-const addCourseMarker = () => {
+const addCourseMarker = (course) => {
     let markerImage = "/file/map_not_done.png";
     let markerSize = new kakao.maps.Size(24, 35);
 
+    if (course.users_course_id) {
+        markerImage = "/file/map_complete.jpg";
+        markerSize = new kakao.maps.Size(40, 50);
+    }
+
     const image = new kakao.maps.MarkerImage(markerImage, markerSize);
     const position = new kakao.maps.LatLng(
-        35.87558554748438,
-        128.6814743128405
+        course.course_latitude,
+        course.course_longitude
     );
     new kakao.maps.Marker({
         map,
         position,
-        title: "영진직업전문학교",
+        title: course.course_name,
         image,
     });
+};
+// 모든 코스를 돌면서 마커를 그리기 위한 함수
+const allCourseMarker = () => {
+    for (let i = 0; i < courseListInfo.length; i++) {
+        addCourseMarker(courseListInfo[i]);
+    }
 };
 
 const configurationLocationWatch = () => {
@@ -62,6 +76,7 @@ const configurationLocationWatch = () => {
             // 지도를 한번만 그리기 위해서 false를 true로 바꿔줘서 막아줌
             if (!isMapDrawn) {
                 drawMap(userLatitude, userLongitude);
+                allCourseMarker();
                 isMapDrawn = true;
             }
             // drawing user marker
@@ -72,5 +87,34 @@ const configurationLocationWatch = () => {
     }
 };
 
+const makeNavigationHtml = () => {
+    const courseWrap = document.getElementById("course-wrap");
+    let html = "";
+    for (let i = 0; i < courseListInfo.length; i++) {
+        html += `<li class="course">`;
+        if (courseListInfo[i].users_course_id) {
+            html += `<div class="mark-wrap"><img src="/file/complete.png" /></div>`;
+        }
+        html += ` <p>${courseListInfo[i].course_name}</p>`;
+        html += `</li>`;
+    }
+    html += `<li id="myPosition" class="course on">나의 위치</li>`;
+    courseWrap.innerHTML = html;
+};
+
+// 코스 정보를 받아온 다음에 할 일
+const afterGetCourseList = () => {
+    makeNavigationHtml();
+    configurationLocationWatch();
+};
+
+// 백엔드 서버로 코스정보 요청
+const getCourseListFetch = async () => {
+    const response = await fetch("/api/courses");
+    const result = await response.json();
+    courseListInfo = result;
+    afterGetCourseList();
+};
+
 // drawMap(35.87558554748438, 128.6814743128405);
-configurationLocationWatch();
+getCourseListFetch();

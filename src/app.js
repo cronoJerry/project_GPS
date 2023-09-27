@@ -1,6 +1,9 @@
+import "dotenv/config";
+import "regenerator-runtime";
 import express from "express";
 import viewRouter from "./router/viewRouter";
 import apiRouter from "./router/apiRouter";
+// 비동기 처리방식 사용하기 위한 문법
 
 const app = express();
 const PORT = 8080;
