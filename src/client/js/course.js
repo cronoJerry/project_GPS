@@ -61,10 +61,10 @@ const configurationLocationWatch = () => {
             }
             // drawing user marker
             addUserMarker();
+            addCourseMarker();
         });
     }
 };
 
-drawMap(35.87558554748438, 128.6814743128405);
-addCourseMarker();
+// drawMap(35.87558554748438, 128.6814743128405);
 configurationLocationWatch();

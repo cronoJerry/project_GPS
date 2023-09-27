@@ -4,7 +4,7 @@
   "description": "show kakao course",
   "main": "index.js",
   "scripts": {
-    "build": "babel src/app.js -d build/src",
+    "build": "babel src -d build/src",
     "dev": "nodemon",
     "start": "node build/src/app.js"
   },
