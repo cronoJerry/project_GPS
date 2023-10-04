@@ -9,6 +9,8 @@ let userLongitude;
 // TODO 추후 사라질 수 있음
 let courseListInfo = [];
 
+let clickCourseId = 0;
+
 // function declaration
 const drawMap = (latitude, longitude) => {
     const options = {
@@ -60,6 +62,33 @@ const addCourseMarker = (course) => {
         image,
     });
 };
+
+const clickCourseList = (e, courseId) => {
+    if (clickCourseId !== courseId) {
+        const courseWrap = document.querySelectorAll(".course");
+        for (let i = 0; i < courseWrap.length; i++) {
+            courseWrap[i].classList.remove("on");
+        }
+        e.currentTarget.classList.add("on");
+
+        let courseLatitude;
+        let courseLongitude;
+
+        if (courseId === 0) {
+            courseLatitude = userLatitude;
+            courseLongitude = userLongitude;
+        } else {
+            let matchedCourse = courseListInfo.find(
+                (course) => course.course_id === courseId
+            );
+            courseLatitude = matchedCourse.course_latitude;
+            courseLongitude = matchedCourse.course_longitude;
+        }
+        panTo(courseLatitude, courseLongitude);
+        clickCourseId = courseId;
+    }
+};
+
 // 모든 코스를 돌면서 마커를 그리기 위한 함수
 const allCourseMarker = () => {
     for (let i = 0; i < courseListInfo.length; i++) {
@@ -71,6 +100,7 @@ const configurationLocationWatch = () => {
     if (navigator.geolocation) {
         navigator.geolocation.watchPosition((position) => {
             deleteMarkers();
+            console.log("hi");
             userLatitude = position.coords.latitude;
             userLongitude = position.coords.longitude;
             // 지도를 한번만 그리기 위해서 false를 true로 바꿔줘서 막아줌
@@ -81,8 +111,9 @@ const configurationLocationWatch = () => {
             }
             // drawing user marker
             addUserMarker();
-            addCourseMarker();
-            panTo(userLatitude, userLongitude);
+            if (clickCourseId === 0) {
+                panTo(userLatitude, userLongitude);
+            }
         });
     }
 };
@@ -91,14 +122,14 @@ const makeNavigationHtml = () => {
     const courseWrap = document.getElementById("course-wrap");
     let html = "";
     for (let i = 0; i < courseListInfo.length; i++) {
-        html += `<li class="course">`;
+        html += `<li class="course" onClick="clickCourseList(event,${courseListInfo[i].course_id})">`;
         if (courseListInfo[i].users_course_id) {
             html += `<div class="mark-wrap"><img src="/file/complete.png" /></div>`;
         }
         html += ` <p>${courseListInfo[i].course_name}</p>`;
         html += `</li>`;
     }
-    html += `<li id="myPosition" class="course on">나의 위치</li>`;
+    html += `<li id="myPosition" class="course on" onClick="clickCourseList(event,0)">나의 위치</li>`;
     courseWrap.innerHTML = html;
 };
 
